@@ -2,8 +2,9 @@
 {
     public interface ICurrentUserService
     {
-        int CustomerId { get; }
+        int Id { get; }
         string? Email { get; }
         string? PhoneNumber { get; }
+        string? EmailOrPhone { get; }
     }
 }

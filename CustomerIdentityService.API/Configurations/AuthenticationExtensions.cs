@@ -1,4 +1,5 @@
 ﻿using CustomerIdentityService.Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CustomerIdentityService.API.Configurations
@@ -29,10 +30,11 @@ namespace CustomerIdentityService.API.Configurations
                 ?? throw new InvalidOperationException("JwtSettings missing");
 
             var _internalAuthIssuer = configuration["EcommerceApiGateWay:BaseUrl"];
+            services.AddSingleton<IAuthorizationHandler, InternalOrPermissionHandler>();
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
-                    options.Authority = configuration["EcommerceApiGateWay:BaseUrl"];
+                    options.Authority = jwtSettings.Issuer;
                     options.RequireHttpsMetadata = false;
 
                     options.TokenValidationParameters = new TokenValidationParameters {

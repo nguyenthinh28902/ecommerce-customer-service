@@ -12,7 +12,7 @@ namespace CustomerIdentityService.Application.Services.Authentication
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public int CustomerId // Sửa lại đúng chính tả từ CusomerId thành CustomerId
+        public int Id // Sửa lại đúng chính tả từ CusomerId thành Id
         {
             get
             {
@@ -26,6 +26,25 @@ namespace CustomerIdentityService.Application.Services.Authentication
             }
         }
 
+        /// <summary>
+        /// tùy trường hợp khách hàng đăng ký bằng phương thức gì
+        /// </summary>
+        public string? EmailOrPhone
+        {
+            get
+            {
+                // 1. Lấy từ Header Gateway
+                var EmailOrPhone = _httpContextAccessor.HttpContext?.Request.Headers["X-User-Email"].ToString();
+                if (string.IsNullOrEmpty(EmailOrPhone))
+                {
+                    EmailOrPhone = _httpContextAccessor.HttpContext?.Request.Headers["X-User-Phone"].ToString();
+                }
+                
+
+                return EmailOrPhone;
+            }
+
+        }
         public string? Email
         {
             get
@@ -47,6 +66,6 @@ namespace CustomerIdentityService.Application.Services.Authentication
         }
 
         // Bổ sung thêm thuộc tính kiểm tra đăng nhập nhanh
-        public bool IsAuthenticated => CustomerId > 0;
+        public bool IsAuthenticated => Id > 0;
     }
 }

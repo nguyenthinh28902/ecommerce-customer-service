@@ -37,7 +37,7 @@ namespace CustomerIdentityService.Application.Services.CustomerServices
 
         public async Task<Result<CustomerDto>> GetAuthenticatedCustomer()
         {
-            var userId = _currentUserService.CustomerId;
+            var userId = _currentUserService.Id;
 
             var customer = await _unitOfWork.Repository<Customer>().FindAsync(userId);
             if (customer == null) return Result<CustomerDto>.Failure("Thông tin khách hàng không tồn tại");
@@ -76,7 +76,7 @@ namespace CustomerIdentityService.Application.Services.CustomerServices
                 confirmCustomerInfor = existingCustomer;
             }
             var confirmCustomerInforResponse = new ConfirmCustomerInforResponse();
-            confirmCustomerInforResponse.CustomerId = confirmCustomerInfor.Id;
+            confirmCustomerInforResponse.Id = confirmCustomerInfor.Id;
             confirmCustomerInforResponse.Email = confirmCustomerInfor.Email ?? string.Empty;
             confirmCustomerInforResponse.PhoneNumber = confirmCustomerInfor.PhoneNumber ?? string.Empty;
 
