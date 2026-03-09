@@ -38,7 +38,6 @@ namespace CustomerIdentityService.Application.Services.CustomerServices
         public async Task<Result<CustomerDto>> GetAuthenticatedCustomer()
         {
             var userId = _currentUserService.Id;
-
             var customer = await _unitOfWork.Repository<Customer>().FindAsync(userId);
             if (customer == null) return Result<CustomerDto>.Failure("Thông tin khách hàng không tồn tại");
             var newCustomerDto = _mapper.Map<CustomerDto>(customer);
