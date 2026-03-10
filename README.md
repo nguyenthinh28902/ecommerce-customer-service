@@ -1,56 +1,17 @@
-﻿Customer Identity Service
+﻿# Customer Service
 
-Customer Identity Service là microservice chịu trách nhiệm xác thực và quản lý khách hàng
-trong hệ thống thương mại điện tử.
+### Thông tin chung của dự án
+[Thông tin chung dự án](https://github.com/nguyenthinh28902/mini-project-ecommerce).
 
-Responsibilities
-- Đăng ký / đăng nhập khách hàng
-- Phát hành JWT / Refresh Token
-- Quản lý trạng thái tài khoản khách hàng
-- Cung cấp API xác thực cho các service khác
+### Cấu hình xác thực tại Web
+[Xem tiếp](https://github.com/nguyenthinh28902/ecommerce-cms-web).
 
-Architecture
-- Microservice
-- Clean Architecture
+### Xác thực tại identity
+[Xem tiếp](https://github.com/nguyenthinh28902/ecommerce-identity-server-cms).
 
-Architecture flow:
-API -> Application -> Domain
-             ^
-      Infrastructure
+### Xác thực tại Getaway 
+[Xem tiếp](https://github.com/nguyenthinh28902/ecommerce-api-gateway-cms).
 
-Solution Structure
+### Xác thực tại Service (Product servcie)
+[Xem tiếp](https://github.com/nguyenthinh28902/Ecom.ProductService).
 
-CustomerIdentityService/
-├─ README.md
-├─ .gitignore
-├─ Directory.Build.props
-├─ CustomerIdentityService.sln
-│
-├─ src/
-│   ├─ CustomerIdentityService.API
-│   ├─ CustomerIdentityService.Application
-│   ├─ CustomerIdentityService.Domain
-│   └─ CustomerIdentityService.Infrastructure
-│
-└─ test/
-    ├─ CustomerIdentityService.Domain.Tests
-    └─ CustomerIdentityService.Application.Tests
-
-Tech Stack
-- .NET 8 (LTS)
-- ASP.NET Core Web API
-- Entity Framework Core
-- JWT Authentication
-- Docker
-
-Run locally
-dotnet restore
-dotnet build
-dotnet run --project src/CustomerIdentityService.API
-
-Run tests
-dotnet test
-
-Notes
-- Service này chỉ xử lý xác thực khách hàng
-- Các service khác không truy cập database, chỉ verify token
