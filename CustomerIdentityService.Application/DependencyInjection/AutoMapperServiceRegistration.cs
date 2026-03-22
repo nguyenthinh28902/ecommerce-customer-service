@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CustomerIdentityService.Application.Common.Mappings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,10 @@ namespace CustomerIdentityService.Application.DependencyInjection
     {
         public static IServiceCollection AddAutoMapperServiceRegistration(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<CustomerProfile>();
+            });
 
             return services;
         }

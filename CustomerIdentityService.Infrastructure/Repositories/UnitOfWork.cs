@@ -1,6 +1,8 @@
 ﻿using CustomerIdentityService.Core.Abstractions.Persistence;
 using CustomerIdentityService.Infrastructure.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,37 +14,96 @@ namespace CustomerIdentityService.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly CustomerDbContext dbContext;
-        private Dictionary<Type, object> _repositories = new Dictionary<Type, object>();
-        public UnitOfWork(CustomerDbContext context)
+        private readonly CustomerDbContext _dbContext;
+        private readonly Dictionary<Type, object> _repositories = new();
+        private IDbContextTransaction? _transaction;
+        private bool _disposed = false;
+        private readonly IServiceProvider _serviceProvider;
+        public UnitOfWork(CustomerDbContext context, IServiceProvider serviceProvider)
         {
-            dbContext = context;
+            _dbContext = context;
+            _serviceProvider = serviceProvider;
         }
+
 
         public IRepository<T> Repository<T>() where T : class
         {
-            IRepository<T> repository = null;
-            if (_repositories.ContainsKey(typeof(T)))
+            var type = typeof(T);
+            if (!_repositories.ContainsKey(type))
             {
-                repository = _repositories[typeof(T)] as IRepository<T>;
+                var repo = _serviceProvider.GetService<IRepository<T>>();
+                if (repo == null)
+                {
+                    repo = new Repository<T>(_dbContext);
+                }
+                _repositories[type] = repo;
             }
-            else
-            {
-                repository = new Repository<T>(dbContext);
-                _repositories.Add(typeof(T), repository);
-            }
-
-            return (Repository<T>)repository;
-        }
-       
-        public async Task SaveChangesAsync()
-        {
-            await dbContext.SaveChangesAsync();
+            return (IRepository<T>)_repositories[type];
         }
 
-        public void SaveChanges()
+        public async Task<int> SaveChangesAsync()
         {
-            dbContext.SaveChanges();
+            return await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task BeginTransactionAsync()
+        {
+            _transaction = await _dbContext.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitAsync()
+        {
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                if (_transaction != null)
+                {
+                    await _transaction.CommitAsync();
+                }
+            }
+            catch
+            {
+                await RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                if (_transaction != null)
+                {
+                    await _transaction.DisposeAsync();
+                    _transaction = null;
+                }
+            }
+        }
+
+        public async Task RollbackAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _transaction?.Dispose();
+                    _dbContext.Dispose();
+                }
+                _disposed = true;
+            }
         }
     }
 }
